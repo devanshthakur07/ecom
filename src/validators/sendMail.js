@@ -1,4 +1,3 @@
-
 const nodemailer = require("nodemailer");
 
 
@@ -21,15 +20,16 @@ const sendResetPasswordMail = async(email, token)=>{
         html: `<h2>Request for change of password</h2>
                <p>Click the link to reset your password</p>
                <br/>
-               <h3>Link :  ${process.env.BASE_URL}/resetPassword/${token}</h3>`,
+               <h3>Link :  ${process.env.BASE_URL}/api/auth/resetPassword/${token}</h3>
+               <p>Link will expire in 10 minutes!</p>`,
       };
       transporter.sendMail(mailOptions, function(error,info){
         if(error){
           console.log(error)
         }
         else {
-          console.log(mailOptions);
-          console.log("Mail has been sent successfully! ",info.response);
+          //console.log(mailOptions);
+          console.log("Please check your inbox. E-mail has been sent successfully!");
         }
       })
     

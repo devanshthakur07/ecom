@@ -1,8 +1,8 @@
 
-const stripe = require("stripe")("sk_test_51NdRYtSD97XjtBD2OyoG1tyUGQIO1Mt4StlzIjMwINUdD5DSjXO7Q0c3KuTPEcN4BtkvAQevpJgY7ftlSnVGdCdu008pNOAnIs");
+const stripe = require("stripe")("sk_test_51OK4o5SEGW6cuXIzbALGxNQjwHB1djGUdLZN0n1rROAps2pl0hk4kIHuIWKFhdBsn3FwcgWhq0eEfuJa0H1tQRf800XsGLZQrf");
 const mailTrackId = require("../validators/sendOrderSummaryMail")
 const orderModel = require("../model/orderModel");
-const productModel = require("../model/productModel");
+const Product = require("../model/Product");
 
 
 
@@ -13,7 +13,7 @@ const payment = async (req, res, next) => {
     let items = req.body.items
     let session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      line_items: req.body.items.items.map((item) => ({
+      line_items: req.body.items.map((item) => ({
         price_data: {
           currency: "INR",
           product_data: {
@@ -75,7 +75,7 @@ const paymentStatus =  async (req, res) => {
       // if payment failed then update product stocks
       if (paymentIntent === "payment_failed") {
         order.items.forEach(async (item) => {
-          await productModel.findByIdAndUpdate(
+          await Product.findByIdAndUpdate(
             item.productId._id,
             { $inc: { stock: +item.quantity } },
             { new: true }

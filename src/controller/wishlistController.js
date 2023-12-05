@@ -1,5 +1,5 @@
-const userModel = require("../model/User")
-const productModel = require("../model/productModel")
+const User = require("../model/User")
+const Product = require("../model/Product")
 const wishlistModel = require("../model/wishlistModel")
 
 
@@ -7,11 +7,11 @@ const addToWishlist = async function (req, res) {
     try {
         let userId = req.user.userId;
         let productId = req.body.productId
-        let product = await productModel.findById(productId);
+        let product = await Product.findById(productId);
         if (!product) {
             return res.status(400).send({ status: false, message: " invalid productId " });
         }
-        let user = await userModel.findById(userId);
+        let user = await User.findById(userId);
         if (!user) {
             return res.status(400).send({ status: false, message: "invalid userId and token " });
         }
@@ -41,7 +41,6 @@ const addToWishlist = async function (req, res) {
 const getWishlist = async function (req, res) {
   try {
     let userId = req.user.userId;
-
     //checking if the userWishlist exist with this userId or not
     let userWishlist = await wishlistModel.findOne({ userId }).populate("products");
     return res.status(200).send({status: true, message: "Success", wishlist: userWishlist });

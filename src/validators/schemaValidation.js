@@ -5,7 +5,7 @@ const authValidation = Joi.object().keys({
   name: Joi.string().min(3).max(32).required(),
   email:Joi.string().email().lowercase().required().regex(/^([A-Za-z0-9._]{3,}@[A-Za-z]{3,}[.]{1}[A-Za-z.]{2,6})+$/),
   password:Joi.string().min(2).required(),
-
+  isAdmin:Joi.bool()
 })
 const productSchema = Joi.object({
   title:Joi.string().required(),

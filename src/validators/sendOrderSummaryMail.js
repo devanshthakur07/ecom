@@ -87,8 +87,7 @@ const mailTrackId = async (email, order) => {
             </table>
                  <br>
                 <h3><Please do not hesitate to contact us on if you have any questions./h3>
-                <h3>Thank you for choose us</h3>   
-                <h3>Birendra</h3> `,
+                <h3>Thank you for shopping for us!</h3>`,
 
     });
     if (success) {

@@ -1,4 +1,4 @@
-const productModel = require("../model/productModel");
+const Product = require("../model/Product");
 const cartModel = require("../model/cartModel");
 const { isValidBody, isValidId } = require("../validators/validator");
 const { getUserId } = require("./userController.js");
@@ -7,15 +7,16 @@ const createCart = async function (req, res) {
   try {
     let userId = req.user.userId;
     let data = req.body;
-    if (isValidBody(data)) {
-      return res.status(400) .send({ status: false, message: "please provide request body" }); }
     let { productId } = data;
     if (!isValidId(productId)) {
       return res.status(400) .send({ status: false, message: "please provide valid product Id" });
     }
-    let product = await productModel.findById(productId);
+    let product = await Product.findById(productId);
     if (!product) {
-      return res.status(400).send({ status: false, message: "this product is not found in product model", });
+      return res.status(400).send({ 
+        status: false, 
+        message: "Product not found!" 
+      });
     }
 
     let userCart = await cartModel.findOne({ userId: userId });
@@ -150,7 +151,7 @@ const updateCart = async (req, res) => {
         .status(400)
         .send({ status: false, message: "please provide productId" });
     }
-    let product = await productModel.findById(productId._id);
+    let product = await Product.findById(productId._id);
     if (!product) {
       return res
         .status(404)

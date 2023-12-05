@@ -1,7 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const cartModel = require("../model/cartModel");
 const orderModel = require("../model/orderModel");
-const productModel = require("../model/productModel");
+const Product = require("../model/Product");
 const bcrypt = require("bcrypt");
 // const { orderSchema } = require("../validators/schemaValidation");
 const userModel = require("../model/User");
@@ -52,7 +52,7 @@ const createOrder = async (req, res) => {
 
       let order = await orderModel.create(orderDetails);
       items.forEach(async (item) => {
-        await productModel.findByIdAndUpdate(
+        await Product.findByIdAndUpdate(
           item.productId._id,
           { $inc: { stock: -item.quantity } },
           { new: true }
@@ -109,7 +109,7 @@ const createOrder = async (req, res) => {
       // create order and update product stocks
       let createdata = await orderModel.create(order);
       items.forEach(async (item) => {
-        await productModel.findByIdAndUpdate(
+        await Product.findByIdAndUpdate(
           item.productId._id,
           { $inc: { stock: -item.quantity } },
           { new: true }
@@ -216,7 +216,7 @@ const cancelProductInOrder = async (req, res) => {
         .status(400)
         .send({ status: false, message: "Order cannot be updated" });
     }
-    let product = await productModel
+    let product = await Product
       .findById(productId)
      
     if (!product) {
@@ -318,7 +318,7 @@ const cancelOrder = async (req, res) => {
         .send({ status: false, message: "Order cannot be cancel" });
     }
     userOrder.items.forEach(async (product) => {
-      await productModel.findByIdAndUpdate(
+      await Product.findByIdAndUpdate(
         product.productId,
         { $inc: { stock: +product.quantity } },
         { new: true }

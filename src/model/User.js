@@ -1,3 +1,4 @@
+const { boolean } = require('joi');
 const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
@@ -6,7 +7,7 @@ const userSchema = mongoose.Schema({
         required: true,
         trim:true
     },
-    phone: {
+    mobile: {
         type: String,
         // required: true,
         
@@ -22,6 +23,10 @@ const userSchema = mongoose.Schema({
         required: true,
         trim:true,
 
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false
     },
     token:{
         type:String,

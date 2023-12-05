@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 const authentication = async(req, res, next)=>{
     try {
-        let token  = req.headers["x-api-key"];
+        let token  = req.get("authorization");
         if (!token){
             return res.status(401).send(
                 { 
@@ -10,6 +10,8 @@ const authentication = async(req, res, next)=>{
                     message: "No token provided!"
                 });
         }
+        token = token.slice(7);
+        
         let decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
         req.token = token;
         req.user = decodedToken;

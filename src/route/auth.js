@@ -7,7 +7,7 @@ router.route('/register').post(register);
 router.route('/login').post(login);
 router.route('/forgotPassword').post(forgetPassword);
 router.route('/resetPassword/:emailToken').put(updatePassword);
-router.route('/logout').get(authentication, logout);
+router.route('/logout').post(authentication, logout);
 router.route('/refresh-token').post(refreshToken)
 
 

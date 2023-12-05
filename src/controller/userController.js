@@ -10,11 +10,8 @@ const { sendResetPasswordMail } = require("../validators/sendMail");
 
 const register = async (req, res) => {
   try {
-    let { email, name, mobile } = req.body;
+    let { email, name, mobile, isAdmin } = req.body;
 
-    if (Object.keys(req.body).length == 0 || Object.keys(req.body).length > 4) {
-      return res.status(400).send({ status: false, message: "invalid request" });
-    }
     const valid = authValidation.validate(req.body);
 
     if (valid.error) {
@@ -33,14 +30,13 @@ const register = async (req, res) => {
       password: hashedPassword,
       name,
       mobile,
+      isAdmin:isAdmin,
     };
     let savedData = await User.create(user);
-    let token = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY, {expiresIn: process.env.JWT_EXPIRES_IN});
-    return res.cookie("x-api-key", token).status(201).send({
+    return res.status(201).send({
       status: true,
-      message: " signup seccessfully",
+      message: "User created successfully",
       data: savedData,
-      token: token,
     });
   } catch (err) {
     res.status(500).send({ status: false, message: err.message });
@@ -79,11 +75,11 @@ const login = async function (req, res) {
         message: "email or password is incorrect" 
       });
     }
-    let token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+    let token = jwt.sign({ userId: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET_KEY, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
     let refreshToken = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, isAdmin: user.isAdmin },
       process.env.REF_TOKEN_SECRET,
       { expiresIn: process.env.REF_TOKEN_EXPIRE }
     );
@@ -112,7 +108,11 @@ const login = async function (req, res) {
     UserIdToLocal=user._id
     res
       .status(200)
-      .send({ success: true, user: userInfo, message:" login seccessfully" ,response, token: token });
+      .send({ 
+        success: true,
+        message:" Logged in successfully" ,
+        response, 
+        token: token });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
@@ -161,7 +161,7 @@ const forgetPassword = async (req, res) => {
         {
           $set: {
             token: randomString,
-            tokenExp: Math.round(new Date(Date.now() + 2 * 60 * 1000)),
+            tokenExp: Math.round(new Date(Date.now() + 10 * 60 * 1000)),
           },
           new: true,
         }
@@ -222,7 +222,7 @@ const updatePassword = async (req, res) => {
 const logout = async (req, res) => {
   let userId = req.user.userId;
   try {
-    let token = req.headers["x-api-key"];
+    let token = req.get("authorization");
     const tokens = req.user.tokens;
 
     let user = await User.findById(userId);
@@ -234,10 +234,12 @@ const logout = async (req, res) => {
       { new: true }
     );
 
-    return res
-      .status(200)
-      .send({ success: true, message: "Sign out successfully!" });
-  } catch (error) {
+    return res.status(200).send({ 
+      success: true, 
+      message: "Logged out successfully!" 
+    });
+  } 
+  catch (error) {
     return res.status(500).send({ success: false, error: error.message });
   }
 };
