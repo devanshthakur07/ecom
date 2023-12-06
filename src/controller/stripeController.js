@@ -1,7 +1,7 @@
 
 const stripe = require("stripe")("sk_test_51OK4o5SEGW6cuXIzbALGxNQjwHB1djGUdLZN0n1rROAps2pl0hk4kIHuIWKFhdBsn3FwcgWhq0eEfuJa0H1tQRf800XsGLZQrf");
 const mailTrackId = require("../validators/sendOrderSummaryMail")
-const orderModel = require("../model/orderModel");
+const Order = require("../model/Order");
 const Product = require("../model/Product");
 
 
@@ -29,7 +29,7 @@ const payment = async (req, res, next) => {
       cancel_url: `${process.env.BASE_URL}/failed`,
     });
     if (req.body.form.email) {
-      let order = await orderModel.findOne({
+      let order = await Order.findOne({
         email: req.body.form.email,
         paymentStatus: "payment_pending",
       })
@@ -40,7 +40,7 @@ const payment = async (req, res, next) => {
         await order.save();
       }
     } else {
-      let order = await orderModel.findOne({
+      let order = await Order.findOne({
         userId: items.userId,
         paymentStatus :"payment_pending"
       });
@@ -69,7 +69,7 @@ const paymentStatus =  async (req, res) => {
     } else {
       paymentIntent = "payment_failed";
     }
-    let order = await orderModel.findOne({ paymentId: c_id }).populate(["items.productId","userId"])
+    let order = await Order.findOne({ paymentId: c_id }).populate(["items.productId","userId"])
     // console.log(order);
     if (order) {
       // if payment failed then update product stocks

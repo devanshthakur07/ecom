@@ -7,6 +7,7 @@ const productRoute = require('./route/product');
 const paymentRoute = require('./route/payments');
 const wishlistRoute = require('./route/wishlist');
 const cartRoute = require('./route/cart');
+const orderRoute = require('./route/order');
 const app = express();
 const cors =require('cors')
 
@@ -18,6 +19,7 @@ app.use('/product', productRoute);
 app.use('/payment', paymentRoute);
 app.use('/wishlist', wishlistRoute);
 app.use('/cart', cartRoute);
+app.use('/order', orderRoute);
 mongoose.connect(process.env.DB_URL, {
     useNewUrlParser: true
 }).then(() => console.log("Connection to MongoDB is established..."))

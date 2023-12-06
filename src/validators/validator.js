@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 
+
   const isValidId = function (id) {
-    return ObjectId.isValid(id);
+    return  mongoose.Types.ObjectId.isValid(id);
   };
   const isValid = (value) => {
     if (typeof value === "undefined" || typeof value === "null") return true;
