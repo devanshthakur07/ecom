@@ -1,15 +1,17 @@
 const Product = require("../model/Product");
 const Cart = require("../model/Cart.js");
-const { isValidBody, isValidId } = require("../validators/validator");
+const { isValidId } = require("../validators/validator");
 const { getUserId } = require("./userController.js");
 
 const createCart = async function (req, res) {
   try {
     let userId = req.user.userId;
-    let data = req.body;
-    let { productId } = data;
+    let { productId } = req.body;
     if (!isValidId(productId)) {
-      return res.status(400) .send({ status: false, message: "please provide valid product Id" });
+      return res.status(400).send({ 
+        status: false, 
+        message: "please provide valid product Id" 
+      });
     }
     let product = await Product.findById(productId);
     if (!product) {
@@ -27,7 +29,10 @@ const createCart = async function (req, res) {
       cart.totalItems = 1;
       cart.totalPrice = product.price;
       const newCart = await Cart.create(cart);
-      return res.status(201).send({  status: true,  message: "item added successfully",cart: newCart,});
+      return res.status(201).send({  
+        status: true,  
+        message: "item added successfully",
+        cart: newCart});
     }
 
     let quantity = 1;
@@ -45,12 +50,14 @@ const createCart = async function (req, res) {
     let price = product.price;
     cart.totalPrice = userCart.totalPrice + price * quantity;
     cart.totalItems = userCart.totalItems +1;
-    let update = await Cart
-      .findByIdAndUpdate(userCart._id, cart, { new: true })
+    let update = await Cart.findByIdAndUpdate(userCart._id, cart, { new: true })
       .populate("items.productId");
-    return res
-      .status(201)
-      .send({ status: true, message: "item added successfully", cart: update });
+    return res.status(201).send
+    ({ 
+      status: true, 
+      message: "item added successfully", 
+      cart: update 
+    });
   } catch (err) {
     return res.status(500).send({ status: false, error: err.message });
   }
@@ -64,16 +71,19 @@ const getCartDetails = async function (req, res) {
     let userId = req.user.userId;
 
     //checking if the cart exist with this userId or not
-    let userCart = await Cart
-      .findOne({ userId })
-
+    let userCart = await Cart.findOne({ userId })
       .populate("items.productId");
 
-    return res
-      .status(200)
-      .send({ status: true, message: "Success", cart: userCart });
-  } catch (error) {
-    return res.status(500).send({ status: false, error: error.message });
+    return res.status(200).send({ 
+      status: true, 
+      message: "Success", 
+      cart: userCart });
+  } 
+  catch (error) {
+    return res.status(500).send({ 
+      status: false, 
+      error: error.message 
+    });
   }
 };
 
