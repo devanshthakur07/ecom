@@ -1,5 +1,5 @@
 const Product = require("../model/Product");
-const cartModel = require("../model/cartModel");
+const Cart = require("../model/Cart.js");
 const { isValidBody, isValidId } = require("../validators/validator");
 const { getUserId } = require("./userController.js");
 
@@ -19,15 +19,15 @@ const createCart = async function (req, res) {
       });
     }
 
-    let userCart = await cartModel.findOne({ userId: userId });
+    let userCart = await Cart.findOne({ userId: userId });
     let cart = {};
     if (!userCart) {
       cart.userId = userId;
       cart.items = [{ productId, quantity: 1 }];
       cart.totalItems = 1;
       cart.totalPrice = product.price;
-      const newCart = await cartModel.create(cart);
-      return res.status(201).send({  status: false,  message: "item added successfully",cart: newCart,});
+      const newCart = await Cart.create(cart);
+      return res.status(201).send({  status: true,  message: "item added successfully",cart: newCart,});
     }
 
     let quantity = 1;
@@ -45,7 +45,7 @@ const createCart = async function (req, res) {
     let price = product.price;
     cart.totalPrice = userCart.totalPrice + price * quantity;
     cart.totalItems = userCart.totalItems +1;
-    let update = await cartModel
+    let update = await Cart
       .findByIdAndUpdate(userCart._id, cart, { new: true })
       .populate("items.productId");
     return res
@@ -64,7 +64,7 @@ const getCartDetails = async function (req, res) {
     let userId = req.user.userId;
 
     //checking if the cart exist with this userId or not
-    let userCart = await cartModel
+    let userCart = await Cart
       .findOne({ userId })
 
       .populate("items.productId");
@@ -83,7 +83,7 @@ const addToCartFromLocalStorage = async (req, res) => {
 
     let items = req.body.cart.items;
 
-    let userCart = await cartModel
+    let userCart = await Cart
       .findOne({ userId })
       .populate("items.productId");
     if (!userCart) {
@@ -93,7 +93,7 @@ const addToCartFromLocalStorage = async (req, res) => {
         totalPrice: req.body.cart.totalPrice,
         totalItems: req.body.cart.totalItems,
       };
-      let newCart = await cartModel.create(cartDetails);
+      let newCart = await Cart.create(cartDetails);
       return res
         .status(201)
         .send({ status: true, message: "Items added to cart", cart: newCart });
@@ -163,7 +163,7 @@ const updateCart = async (req, res) => {
         message: `maximum quantiy to buy is ${product.stock} this product because stock not available `,
       });
     }
-    let userCart = await cartModel.findOne({ userId });
+    let userCart = await Cart.findOne({ userId });
     let item = userCart.items.findIndex(
       (item) => item.productId.toString() == productId._id.toString()
     );
@@ -178,7 +178,7 @@ const updateCart = async (req, res) => {
     if (quantity < 1) {
       let totalItems = userCart.totalItems - cartItem.quantity;
       let totalPrice = userCart.totalPrice - cartItem.quantity * product.price;
-      let cart = await cartModel
+      let cart = await Cart
         .findByIdAndUpdate(
           userCart._id,
           {
@@ -198,7 +198,7 @@ const updateCart = async (req, res) => {
         userCart.totalPrice +
         (quantity * product.price - cartItem.quantity * product.price);
       cartItem.quantity = quantity;
-      let cart = await cartModel
+      let cart = await Cart
         .findByIdAndUpdate(userCart._id, updatedCart, { new: true })
         .populate("items.productId");
       return res
@@ -211,7 +211,7 @@ const updateCart = async (req, res) => {
         userCart.totalPrice +
         (quantity * product.price - cartItem.quantity * product.price);
       cartItem.quantity = quantity;
-      let cart = await cartModel
+      let cart = await Cart
         .findByIdAndUpdate(userCart._id, updatedCart, { new: true })
         .populate("items.productId");
       return res

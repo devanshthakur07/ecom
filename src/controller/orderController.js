@@ -1,5 +1,5 @@
 const { default: mongoose } = require("mongoose");
-const cartModel = require("../model/cartModel");
+const Cart = require("../model/Cart");
 const orderModel = require("../model/orderModel");
 const Product = require("../model/Product");
 const bcrypt = require("bcrypt");
@@ -63,7 +63,7 @@ const createOrder = async (req, res) => {
         .status(201)
         .send({ status: true, message: "Order placed ", order });
     } else {
-      let cartDetail = await cartModel
+      let cartDetail = await Cart
         .findOne({ userId: userId })
         .populate("items.productId", "stock");
 
@@ -116,7 +116,7 @@ const createOrder = async (req, res) => {
         );
       });
       //cart empty after order  successfully placed  
-      await cartModel.findByIdAndUpdate(
+      await Cart.findByIdAndUpdate(
         cartDetail._id,
         { $set: { items: [], totalItems: 0, totalPrice: 0 } },
         { new: true }
