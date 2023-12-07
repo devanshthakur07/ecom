@@ -26,7 +26,7 @@ const orderReceivedMail = async (email, order) => {
         <br>
     </div>
                 <h3><Please do not hesitate to contact us on if you have any questions./h3>
-                <h3>Thank you for shopping for us!</h3>`,
+                <h3>Thank you for shopping with us!</h3>`,
 
     });
     if (success) {

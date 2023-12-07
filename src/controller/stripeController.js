@@ -17,10 +17,10 @@ const payment = async (req, res, next) => {
         price_data: {
           currency: "INR",
           product_data: {
-            name: item.productId.title,
-            images: item.productId.images,
+            name: item.title,
+            images: item.images,
           },
-          unit_amount: item.productId.price * 100,
+          unit_amount: item.price * 100,
         },
         quantity: item.quantity,
       })),
