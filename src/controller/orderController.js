@@ -5,17 +5,11 @@ const Cart = require("../model/Cart");
 const mongoose = require("mongoose");
 const orderReceivedMail = require('../validators/sendOrderSummaryMail')
 // Controller for placing an order
-const createOrder = async (req, res) => {
-  console.log(req.user);
-  const session = await mongoose.startSession();
-  session.startTransaction();
 
+const createOrder = async (req, res) => {
   try {
-    console.log(req.user)
-    let userId = req.user.userId;
-    
-    const userLoggedIn = User.findById(userId);
-    const {email} = userLoggedIn;
+    const userId = req.user.userId;
+
     // Find the user's cart
     const userCart = await Cart.findOne({ userId }).populate("items.productId");
 
@@ -36,20 +30,61 @@ const createOrder = async (req, res) => {
     });
 
     // Save the order
-    await order.save({ session });
+    await order.save();
+
+    // Decrease the product quantity for each item in the order
+    for (const item of userCart.items) {
+      const product = await Product.findById(item.productId);
+
+      if (!product) {
+        console.error(`Product with ID ${item.productId} not found`);
+        continue;
+      }
+
+      if (product.stock < item.quantity) {
+        console.error(`Insufficient stock for product with ID ${item.productId}`);
+        continue;
+      }
+
+      // Decrease stock
+      product.stock -= item.quantity;
+
+      // Save the updated product
+      await product.save();
+    }
 
     // Clear the user's cart
-    console.log(userCart._id);
-    await Cart.findByIdAndDelete(userCart._id).session(session);
-    session.endSession();
-    orderReceivedMail(email, order);
+    await Cart.findByIdAndDelete(userCart._id);
+
+    // Send order received email or perform any other actions
+
     res.status(201).json({ success: true, order });
   } catch (error) {
     console.error(error);
-    session.endSession();
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
 
+const getOrderById = async (req, res) => {
+  try {
+    const orderId = req.params.orderId; // Assuming the order ID is part of the request parameters
 
-module.exports = {createOrder};
+    // Check if the provided ID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+
+    const order = await Order.findById(orderId).populate("items.productId");
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    res.status(200).json({ success: true, order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+module.exports = {createOrder, getOrderById};

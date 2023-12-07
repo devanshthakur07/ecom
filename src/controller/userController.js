@@ -46,10 +46,7 @@ const register = async (req, res) => {
 
 
 ///login user
-let UserIdToLocal
-const getUserId = ( ) => {
-  return UserIdToLocal
-}
+
 const login = async function (req, res) {
 
   try {
@@ -105,7 +102,6 @@ const login = async function (req, res) {
     const userInfo = {
       email: user.email,
     };
-    UserIdToLocal=user._id
     res
       .status(200)
       .send({ 
@@ -245,7 +241,6 @@ const logout = async (req, res) => {
 };
 
 module.exports = {
-  getUserId,
   register,
   login,
   updatePassword,

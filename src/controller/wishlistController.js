@@ -1,7 +1,7 @@
 const User = require("../model/User")
 const Product = require("../model/Product")
 const Wishlist = require("../model/Wishlist")
-
+const Cart = require('../model/Cart');
 
 const addToWishlist = async function (req, res) {
     try {
@@ -115,8 +115,59 @@ const removeFromWishlist = async (req, res) => {
 };
 
 
+const moveToCart = async (req, res) => {
+  try {
+    const userId = req.user.userId; // Assuming the user object is attached to the request with user information
 
+    const { productId } = req.body;
 
+    // Check if the product exists in the wishlist
+    const wishlistItem = await Wishlist.findOne({ userId, products: productId });
 
+    if (!wishlistItem) {
+      return res.status(404).json({ message: 'Product not found in wishlist' });
+    }
 
-module.exports = { addToWishlist, getWishlist, removeFromWishlist };
+    // Assuming you have a route like '/add-to-cart' to add an item to the cart
+    // This route should add the item to the cart and calculate the new total price and total items
+    const cartItem = {
+      productId,
+      quantity: 1,
+    };
+    const product = await Product.findById(productId);
+    if(!product) {
+      return res.status(404).json({message: "Product does not exists!"});
+    }
+    // Find the user's cart or create a new one if it doesn't exist
+    let userCart = await Cart.findOne({ userId });
+
+    if (!userCart) {
+      userCart = new Cart({
+        userId,
+        items: [cartItem],
+        totalPrice: cartItem.quantity * product.price, // Assuming you have a 'price' field in your Product model
+        totalItems: cartItem.quantity,
+      });
+    } else {
+      // Add the cart item to the existing cart
+      userCart.items.push(cartItem);
+
+      // Update the total price and total items in the cart
+      userCart.totalPrice += cartItem.quantity * product.price;
+      userCart.totalItems += cartItem.quantity;
+    }
+
+    // Save the updated cart
+    await userCart.save();
+
+    // Remove the wishlist item
+    await Wishlist.findOneAndUpdate({ userId }, { $pull: { products: productId } });
+
+    res.status(200).json({ message: 'Item moved to cart successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+module.exports = { addToWishlist, getWishlist, removeFromWishlist, moveToCart };
