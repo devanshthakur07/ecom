@@ -117,19 +117,18 @@ const removeFromWishlist = async (req, res) => {
 
 const moveToCart = async (req, res) => {
   try {
-    const userId = req.user.userId; // Assuming the user object is attached to the request with user information
+    const userId = req.user.userId; 
 
     const { productId } = req.body;
 
-    // Check if the product exists in the wishlist
+    
     const wishlistItem = await Wishlist.findOne({ userId, products: productId });
 
     if (!wishlistItem) {
       return res.status(404).json({ message: 'Product not found in wishlist' });
     }
 
-    // Assuming you have a route like '/add-to-cart' to add an item to the cart
-    // This route should add the item to the cart and calculate the new total price and total items
+    
     const cartItem = {
       productId,
       quantity: 1,
@@ -145,7 +144,7 @@ const moveToCart = async (req, res) => {
       userCart = new Cart({
         userId,
         items: [cartItem],
-        totalPrice: cartItem.quantity * product.price, // Assuming you have a 'price' field in your Product model
+        totalPrice: cartItem.quantity * product.price, 
         totalItems: cartItem.quantity,
       });
     } else {

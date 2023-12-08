@@ -67,7 +67,7 @@ const createOrder = async (req, res) => {
 
 const getOrderById = async (req, res) => {
   try {
-    const orderId = req.params.orderId; // Assuming the order ID is part of the request parameters
+    const orderId = req.params.orderId;
 
     // Check if the provided ID is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
@@ -87,4 +87,26 @@ const getOrderById = async (req, res) => {
   }
 };
 
-module.exports = {createOrder, getOrderById};
+const updateOrderStatus = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const { status } = req.body;
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    order.status = status;
+    await order.save();
+
+    res.status(200).json({ message: 'Order status updated successfully', order });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+module.exports = {createOrder, getOrderById, updateOrderStatus};

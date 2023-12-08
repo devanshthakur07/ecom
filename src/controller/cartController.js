@@ -80,9 +80,6 @@ const updateCart = async (req, res) => {
         throw new Error(`Insufficient stock for product with ID ${item.productId}.`);
       }
 
-      // Update stock and save
-      product.stock -= item.quantity;
-      await product.save();
 
       productUpdates.push({
         productId: item.productId,
