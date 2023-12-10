@@ -17,16 +17,17 @@ const createCart = async (req, res) => {
       const product = await Product.findById(item.productId);
 
       if (!product) {
-        throw new Error(`Product with ID ${item.productId} not found.`);
+        return res.status(404).json({
+          message: `Product with ID ${item.productId} not found.`
+        });
       }
 
       if (product.stock < item.quantity) {
-        throw new Error(`Insufficient stock for product with ID ${item.productId}.`);
+        return res.status(409).json({
+          message: `Insufficient stock for product with ID ${item.productId}.`
+        });
       }
 
-      // Update stock and save
-      // product.stock -= item.quantity;
-      // await product.save();
 
       productUpdates.push({
         productId: item.productId,
@@ -45,14 +46,14 @@ const createCart = async (req, res) => {
     }
 
     // Create the cart
-    const cart = new Cart({
+    const cart = await Cart.create({
       userId,
       items: productUpdates,
       totalPrice,
       totalItems,
     });
 
-    await cart.save();
+    
 
     res.status(201).json({ message: 'Cart created successfully', cart });
   } catch (error) {
@@ -129,11 +130,14 @@ const getCartDetails = async (req, res) => {
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
-
-    res.status(200).json({ cart });
-  } catch (error) {
+    else{
+      return res.status(200).json({ cart });
+    }
+    
+  } 
+  catch (error) {
     console.error(error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'There was an error while fetching details from database' });
   }
 };
 

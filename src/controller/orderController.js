@@ -37,13 +37,15 @@ const createOrder = async (req, res) => {
       const product = await Product.findById(item.productId);
 
       if (!product) {
-        console.error(`Product with ID ${item.productId} not found`);
-        continue;
+        return res.status(404).status({
+          message: `Product with ID ${item.productId} not found`
+        });
       }
 
       if (product.stock < item.quantity) {
-        console.error(`Insufficient stock for product with ID ${item.productId}`);
-        continue;
+        return res.status(404).status({
+          message: `Insufficient stock for product with ID ${item.productId}`
+        });
       }
 
       // Decrease stock

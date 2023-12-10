@@ -13,7 +13,7 @@ const  { createOrder, getOrderById, updateOrderStatus } = require("../controller
 
 /**
  * @swagger
- * /order:
+ * /api/order:
  *   post:
  *     summary: Place a new order
  *     tags: [Order]
@@ -73,7 +73,7 @@ const  { createOrder, getOrderById, updateOrderStatus } = require("../controller
 
 /**
  * @swagger
- * /order/{orderId}:
+ * /api/order/{orderId}:
  *   get:
  *     summary: Get order details by ID
  *     tags: [Order]
@@ -128,7 +128,7 @@ const  { createOrder, getOrderById, updateOrderStatus } = require("../controller
 
 /**
  * @swagger
- * /order/{orderId}/status:
+ * /api/order/{orderId}/status:
  *   put:
  *     summary: Update order status by ID
  *     tags: [Order]

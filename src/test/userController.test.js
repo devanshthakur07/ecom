@@ -1,4 +1,4 @@
-const { register, login, forgetPassword, updatePassword, logout } = require('../controller/userController');
+const { register, login, forgetPassword, updatePassword, logout, refreshToken } = require('../controller/userController');
 const User = require('../model/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -505,4 +505,76 @@ describe('logout function', () => {
   });
 
   
+});
+
+
+jest.mock('jsonwebtoken', () => ({
+  verify: jest.fn(),
+  sign: jest.fn(),
+}));
+
+describe('refreshToken', () => {
+  it('should refresh token and return a new token', () => {
+    // Arrange
+    const req = { body: { refreshToken: 'mockRefreshToken' } };
+    const res = {
+      status: jest.fn(() => res),
+      json: jest.fn(),
+    };
+
+    jwt.verify.mockReturnValue({ userId: 'mockUserId' });
+    jwt.sign.mockReturnValue('newMockToken');
+
+    // Act
+    refreshToken(req, res);
+
+    // Assert
+    expect(jwt.verify).toHaveBeenCalledWith(
+      'mockRefreshToken',
+      process.env.REF_TOKEN_SECRET
+    );
+    expect(jwt.sign).toHaveBeenCalledWith(
+      { userId: 'mockUserId' },
+      process.env.JWT_SECRET,
+      { expiresIn: '50m' }
+    );
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ token: 'newMockToken' });
+  });
+
+  it('should return 404 for invalid request', () => {
+    // Arrange
+    const req = { body: { refreshToken: '' } };
+    const res = {
+      status: jest.fn(() => res),
+      send: jest.fn(),
+    };
+
+    // Act
+    refreshToken(req, res);
+
+    // Assert
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.send).toHaveBeenCalledWith({ message: 'Invalid request' });
+  });
+
+  it('should return 500 for internal server error', () => {
+    // Arrange
+    const req = { body: { refreshToken: 'mockRefreshToken' } };
+    const res = {
+      status: jest.fn(() => res),
+      send: jest.fn(),
+    };
+
+    jwt.verify.mockImplementation(() => {
+      throw new Error('Mocked error');
+    });
+
+    // Act
+    refreshToken(req, res);
+
+    // Assert
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.send).toHaveBeenCalledWith({ error: 'Mocked error' });
+  });
 });

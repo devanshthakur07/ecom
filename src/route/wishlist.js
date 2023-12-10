@@ -13,7 +13,7 @@ const {addToWishlist, getWishlist, removeFromWishlist, moveToCart} = require('..
 
 /**
  * @swagger
- * /wishlist:
+ * /api/wishlist:
  *   post:
  *     summary: Add a product to the wishlist
  *     tags: [Wishlist]
@@ -61,7 +61,7 @@ const {addToWishlist, getWishlist, removeFromWishlist, moveToCart} = require('..
 
 /**
  * @swagger
- * /wishlist:
+ * /api/wishlist:
  *   get:
  *     summary: Get the user's wishlist
  *     tags: [Wishlist]
@@ -90,7 +90,7 @@ const {addToWishlist, getWishlist, removeFromWishlist, moveToCart} = require('..
 
 /**
  * @swagger
- * /wishlist/removeItem:
+ * /api/wishlist/removeItem:
  *   put:
  *     summary: Remove a product from the wishlist
  *     tags: [Wishlist]
@@ -130,7 +130,7 @@ const {addToWishlist, getWishlist, removeFromWishlist, moveToCart} = require('..
 
 /**
  * @swagger
- * /wishlist/moveToCart:
+ * /api/wishlist/moveToCart:
  *   post:
  *     summary: Move a product from wishlist to cart
  *     tags: [Wishlist]

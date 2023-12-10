@@ -63,13 +63,26 @@ const addToWishlist = async function (req, res) {
 const getWishlist = async function (req, res) {
   try {
     let userId = req.user.userId;
-    let userWishlist = await Wishlist.findOne({ userId }).populate("products");
+    let userWishlist = await Wishlist.findOne({ userId });
+
+    if(!userWishlist) {
+      return res.status(400).send({
+        status: false,
+        message: "Wishlist does not exists for this user"
+      })
+    }
+
+    
     if(!(userWishlist.products.length)) {
       return res.status(200).send({
         status: true,
         message: "Your wishlist is empty."
       })
     }
+    
+    userWishlist =await userWishlist.populate("products");  
+
+
     return res.status(200).send({
       status: true, 
       message: "Wishlist Found", 
@@ -93,6 +106,13 @@ const removeFromWishlist = async (req, res) => {
     let userId = req.user.userId;
     let {productId} = req.body;
     let userWishlist = await Wishlist.findOne({ userId });
+
+    if(!userWishlist) {
+      return res.status(404).json({
+        message: "Wishlist does not exists."
+      })
+    }
+
     let filteredList = userWishlist.products.filter(
       (x) => x.toString() !== productId.toString()
     );
@@ -165,7 +185,7 @@ const moveToCart = async (req, res) => {
     res.status(200).json({ message: 'Item moved to cart successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'There was an error while moving items to cart!' });
   }
 };
 

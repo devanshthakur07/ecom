@@ -2,126 +2,141 @@ const { getCartDetails, createCart, updateCart } = require('../controller/cartCo
 const Cart = require('../model/Cart'); 
 const Product = require('../model/Product'); 
 
-jest.mock('../model/Cart'); 
+jest.mock('../model/Cart');
 jest.mock('../model/Product');
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
 
-describe('getCartDetails', () => {
-  test('should return cart details when cart is found', async () => {
-    const mockUser = { userId: 'testUserId' };
-    const mockCart = {
-        userId: new ObjectId('5f5b5b5b5b5b5b5b5b5b5b5b'),
-        items: [
-          {
-            productId: new ObjectId('4f4a4a4a4a4a4a4a4a4a4a4a'),
-            quantity: 2,
-          },
-          {
-            productId: new ObjectId('3e3d3d3d3d3d3d3d3d3d3d3d'),
-            quantity: 1,
-          },
-        ],
-        totalPrice: 150, 
-        totalItems: 3,
-      };
 
-    const req = { user: mockUser };
+describe('getCartDetails', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  it('should return cart details when cart is found', async () => {
+    // Arrange
+    const mockCart = {
+      userId: 'mockUserId',
+      items: [{ productId: 'mockProductId', quantity: 2 }],
+      totalPrice: 10,
+      totalItems: 1,
+    };
+    Cart.findOne = jest.fn().mockResolvedValue(mockCart);
+    
+    const req = { user: { userId: 'mockUserId' } };
     const res = {
-      status: jest.fn().mockReturnThis(),
+      status: jest.fn(() => res),
       json: jest.fn(),
     };
 
-    Cart.findOne.mockResolvedValueOnce(mockCart);
-
+    // Act
     await getCartDetails(req, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ cart: mockCart });
   });
 
-  test('should return 404 when cart is not found', async () => {
-    const mockUser = { userId: 'testUserId' };
+  it('should return 404 if cart is not found', async () => {
+    // Arrange
+    Cart.findOne.mockResolvedValue(null);
 
-    const req = { user: mockUser };
+    const req = { user: { userId: 'nonExistentUserId' } };
     const res = {
-      status: jest.fn().mockReturnThis(),
+      status: jest.fn(() => res),
       json: jest.fn(),
     };
 
-    Cart.findOne.mockResolvedValueOnce(null);
-
+    // Act
     await getCartDetails(req, res);
 
+    
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith({ message: 'Cart not found' });
   });
 
-  test('should return 500 on internal server error', async () => {
-    const mockUser = { userId: 'testUserId' };
+  it('should return 500 on internal server error', async () => {
+    // Arrange
+    Cart.findOne.mockRejectedValue(new Error('Database error'));
 
-    const req = { user: mockUser };
+    const req = { user: { userId: 'mockUserId' } };
     const res = {
-      status: jest.fn().mockReturnThis(),
+      status: jest.fn(() => res),
       json: jest.fn(),
     };
 
-    Cart.findOne.mockRejectedValueOnce(new Error('Database error'));
-
+    // Act
     await getCartDetails(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
+    expect(res.json).toHaveBeenCalledWith({ message: 'There was an error while fetching details from database' });
   });
 });
 
 
+jest.mock('../model/Cart', () => ({
+  findOne: jest.fn(),
+}));
 
+jest.mock('../model/Product', () =>  ({
+  findById: jest.fn(),
+}));
 
 describe('createCart', () => {
-    test('should create a cart successfully', async () => {
-        const mockUserId = 'testUserId';
-        const mockItems = [
-          { productId: 'product1', quantity: 2 },
-          { productId: 'product2', quantity: 1 },
-        ];
-    
-        const mockProduct1 = { _id: 'product1', stock: 5, price: 30 };
-        const mockProduct2 = { _id: 'product2', stock: 3, price: 20 };
-    
-        const req = { user: { userId: mockUserId }, body: { items: mockItems } };
-        const res = {
-          status: jest.fn().mockReturnThis(),
-          json: jest.fn(),
-        };
-    
-        Product.findById.mockImplementation((productId) => {
-          const mockProducts = {
-            product1: mockProduct1,
-            product2: mockProduct2,
-          };
-    
-          return Promise.resolve(mockProducts[productId]);
-        });
-    
-        Cart.prototype.save.mockResolvedValueOnce(); // Assuming save resolves successfully
-    
-        await createCart(req, res);
-    
-        expect(res.status).toHaveBeenCalledWith(201);
-        expect(res.json).toHaveBeenCalledWith({
-          message: 'Cart created successfully',
-          cart: expect.objectContaining({
-            userId: mockUserId,
-            items: expect.any(Array),
-            totalPrice: expect.any(Number),
-            totalItems: expect.any(Number),
-          }),
-        });
-    
-        // Additional check to ensure the cart property is defined
-        expect(res.json.mock.calls[0][0].cart).toBeDefined();
-      });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should create a cart successfully', async () => {
+    // Arrange
+    const req = {
+      user: { userId: 'mockUserId' },
+      body: {
+        items: [
+          { productId: 'mockProductId1', quantity: 2 },
+          { productId: 'mockProductId2', quantity: 1 },
+        ],
+      },
+    };
+    const res = {
+      status: jest.fn(() => res),
+      json: jest.fn(),
+    };
+
+    // Mocking Product model
+    Product.findById.mockImplementation((productId) => {
+      const products = {
+        mockProductId1: { price: 10, stock: 5 },
+        mockProductId2: { price: 20, stock: 3 },
+      };
+
+      return Promise.resolve(products[productId]);
+    });
+
+    Cart.create.mockResolvedValue({
+      userId: 'mockUserId',
+      items: [{ productId: 'mockProductId1', quantity: 2, price: 10 }],
+      totalPrice: 20,
+      totalItems: 3,
+    });
+
+    // Act
+    await createCart(req, res);
+
+    // Assert
+    expect(Product.findById).toHaveBeenCalledTimes(2);
+    expect(Product.findById).toHaveBeenCalledWith('mockProductId1');
+    expect(Product.findById).toHaveBeenCalledWith('mockProductId2');
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'Cart created successfully',
+      cart: {
+        userId: 'mockUserId',
+        items: [{ productId: 'mockProductId1', quantity: 2, price: 10 }],
+        totalPrice: 20,
+        totalItems: 3,
+      },
+    });
+  });
 
   test('should handle product not found', async () => {
     const mockUserId = 'testUserId';
@@ -133,12 +148,12 @@ describe('createCart', () => {
       json: jest.fn(),
     };
 
-    Product.findById.mockResolvedValueOnce(null); // Simulating product not found
+    Product.findById.mockResolvedValueOnce(null); 
 
     await createCart(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(500); // You might want to adjust this status code
-    expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
+    expect(res.status).toHaveBeenCalledWith(404); 
+    expect(res.json).toHaveBeenCalledWith({ message: 'Product with ID nonexistentProduct not found.' });
   });
 
   test('should handle insufficient stock', async () => {
@@ -157,8 +172,8 @@ describe('createCart', () => {
 
     await createCart(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(500); // You might want to adjust this status code
-    expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Insufficient stock for product with ID product1.' });
   });
 });
 
@@ -217,7 +232,7 @@ describe('updateCart controller', () => {
       },
     });
 
-    // Check if Product.findById was called with the correct arguments
+
     expect(Product.findById).toHaveBeenCalledWith('mockProductId');
 
     // Check if Cart.findByIdAndUpdate was called with the correct arguments
@@ -252,7 +267,6 @@ describe('updateCart controller', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
 
-    // Check if Product.findById was called with the correct arguments
     expect(Product.findById).toHaveBeenCalledWith('mockProductId');
   });
 });
@@ -279,7 +293,7 @@ describe('updateCart controller', () => {
 
     await updateCart(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404); // or 400 depending on how you want to handle it
+    expect(res.status).toHaveBeenCalledWith(404); 
     expect(res.json).toHaveBeenCalledWith({
       message: 'Product with ID nonexistentProductId not found.',
     });
@@ -307,12 +321,11 @@ describe('updateCart controller', () => {
 
     await updateCart(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(409); // or 400 depending on how you want to handle it
+    expect(res.status).toHaveBeenCalledWith(409); 
     expect(res.json).toHaveBeenCalledWith({
       message: 'Insufficient stock for product with ID mockProductId.',
     });
 
-    // Check if Product.findById was called with the correct arguments
     expect(Product.findById).toHaveBeenCalledWith('mockProductId');
   });
 });

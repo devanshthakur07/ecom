@@ -37,11 +37,11 @@ app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(cors({ origin: "*" }));
 app.use('/api/auth',authRoute);
-app.use('/product', productRoute);
-app.use('/payment', paymentRoute);
-app.use('/wishlist', wishlistRoute);
-app.use('/cart', cartRoute);
-app.use('/order', orderRoute);
+app.use('/api/product', productRoute);
+app.use('/api/payment', paymentRoute);
+app.use('/api/wishlist', wishlistRoute);
+app.use('/api/cart', cartRoute);
+app.use('/api/order', orderRoute);
 mongoose.connect(process.env.DB_URL, {
     useNewUrlParser: true
 }).then(() => console.log("Connection to MongoDB is established..."))

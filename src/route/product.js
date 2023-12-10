@@ -13,7 +13,7 @@ const {createProduct, getProductById, getAllProducts, searchProduct, updateProdu
 
 /**
  * @swagger
- * /products:
+ * /api/products:
  *   post:
  *     summary: Create a new product
  *     tags: [Product]
@@ -80,7 +80,7 @@ const {createProduct, getProductById, getAllProducts, searchProduct, updateProdu
 
 /**
  * @swagger
- * /products:
+ * /api/products:
  *   get:
  *     summary: Get all products
  *     tags: [Product]
@@ -117,7 +117,7 @@ const {createProduct, getProductById, getAllProducts, searchProduct, updateProdu
 
 /**
  * @swagger
- * /products/{id}:
+ * /api/products/{id}:
  *   get:
  *     summary: Get a product by ID
  *     tags: [Product]
@@ -154,7 +154,7 @@ const {createProduct, getProductById, getAllProducts, searchProduct, updateProdu
 
 /**
  * @swagger
- * /products/search:
+ * /api/products/search:
  *   get:
  *     summary: Search for products by title, brand, or category
  *     tags: [Product]
@@ -198,7 +198,7 @@ const {createProduct, getProductById, getAllProducts, searchProduct, updateProdu
 
 /**
  * @swagger
- * /products/{id}:
+ * /api/products/{id}:
  *   put:
  *     summary: Update a product by ID
  *     tags: [Product]

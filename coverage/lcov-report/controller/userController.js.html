@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">81.72% </span>
+                <span class="strong">91.39% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>76/93</span>
+                <span class='fraction'>85/93</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">64.28% </span>
+                <span class="strong">71.42% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>18/28</span>
+                <span class='fraction'>20/28</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">87.5% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>6/8</span>
+                <span class='fraction'>7/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">81.52% </span>
+                <span class="strong">91.3% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>75/92</span>
+                <span class='fraction'>84/92</span>
             </div>
         
             
@@ -430,27 +430,27 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -678,28 +678,28 @@ const login = async function (req, res) {
 };
 &nbsp;
 //refreshToken
-const refreshToken = <span class="fstat-no" title="function not covered" >(r</span>eq, res) =&gt; {
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    const postData = <span class="cstat-no" title="statement not covered" >req.body;</span>
-<span class="cstat-no" title="statement not covered" >    if (postData.refreshToken) {</span>
-      let decodedToken = <span class="cstat-no" title="statement not covered" >jwt.verify(</span>
+const refreshToken = (req, res) =&gt; {
+  try {
+    const postData = req.body;
+    if (postData.refreshToken) {
+      let decodedToken = jwt.verify(
         postData.refreshToken,
         process.env.REF_TOKEN_SECRET
       );
-      const token = <span class="cstat-no" title="statement not covered" >jwt.sign(</span>
+      const token = jwt.sign(
         { userId: decodedToken.userId },
         process.env.JWT_SECRET,
         { expiresIn: "50m" }
       );
-      const response = <span class="cstat-no" title="statement not covered" >{</span>
+      const response = {
         token: token,
       };
-<span class="cstat-no" title="statement not covered" >      res.status(200).json(response);</span>
+      res.status(200).json(response);
     } else {
-<span class="cstat-no" title="statement not covered" >      res.status(404).send({message:"Invalid request"});</span>
+      res.status(404).send({message:"Invalid request"});
     }
   } catch (error) {
-<span class="cstat-no" title="statement not covered" >    return res.status(500).send({ error: error.message });</span>
+    return res.status(500).send({ error: error.message });
   }
 };
 &nbsp;
@@ -817,7 +817,7 @@ module.exports = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-12-09T18:19:18.884Z
+                at 2023-12-10T14:16:34.752Z
             </div>
         <script src="../prettify.js"></script>
         <script>

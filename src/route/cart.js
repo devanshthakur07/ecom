@@ -13,7 +13,7 @@ const {createCart, getCartDetails, updateCart} = require("../controller/cartCont
 
 /**
  * @swagger
- * /cart:
+ * /api/cart:
  *   post:
  *     summary: Create a new cart
  *     tags: [Cart]
@@ -77,7 +77,7 @@ const {createCart, getCartDetails, updateCart} = require("../controller/cartCont
 
 /**
  * @swagger
- * /cart:
+ * /api/cart:
  *   get:
  *     summary: Get cart details
  *     tags: [Cart]
@@ -113,7 +113,7 @@ const {createCart, getCartDetails, updateCart} = require("../controller/cartCont
 
 /**
  * @swagger
- * /cart:
+ * /api/cart:
  *   put:
  *     summary: Update the cart
  *     tags: [Cart]
