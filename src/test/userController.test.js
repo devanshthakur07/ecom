@@ -127,8 +127,7 @@ describe('login function', () => {
         status: 'Logged in',
         token: 'mockedtoken',
         refreshToken: 'mockedtoken',
-      },
-      token: 'mockedtoken',
+      }
     });
   });
 
@@ -344,12 +343,6 @@ describe('updatePassword function', () => {
     expect(res.send).toHaveBeenCalledWith({
       success: true,
       message: 'User password has been reset',
-      data: {
-        _id: 'someid',
-        email: 'test@example.com',
-        password: 'hashednewpassword',
-        token: '',
-      },
     });
   });
 

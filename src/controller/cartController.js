@@ -73,11 +73,15 @@ const updateCart = async (req, res) => {
       const product = await Product.findById(item.productId);
 
       if (!product) {
-        throw new Error(`Product with ID ${item.productId} not found.`);
+        return res.status(404).json({
+          message: `Product with ID ${item.productId} not found.` 
+        })
       }
 
       if (product.stock < item.quantity) {
-        throw new Error(`Insufficient stock for product with ID ${item.productId}.`);
+        return res.status(409).json({
+          message: `Insufficient stock for product with ID ${item.productId}.`
+        })
       }
 
 

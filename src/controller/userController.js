@@ -107,8 +107,8 @@ const login = async function (req, res) {
       .send({ 
         success: true,
         message:" Logged in successfully" ,
-        response, 
-        token: token });
+        response
+       });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
@@ -203,8 +203,7 @@ const updatePassword = async (req, res) => {
         .status(200)
         .send({
           success: true,
-          message: "User password has been reset",
-          data: userData,
+          message: "User password has been reset"
         });
     } else {
       res.status(400).send({ success: false, message: "invalid token " });
