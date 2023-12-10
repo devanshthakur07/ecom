@@ -26,21 +26,33 @@ const createProduct = async function (req, res) {
 
 const getAllProducts = async (req, res) => {
   try {
-    let products = await Product.find();
-    if(!products) {
+    const { limit = 10, page = 1, fields } = req.query; // Default limit to 10 items per page
+
+    const projection = fields
+      ? fields.split(",").reduce((acc, field) => ({ ...acc, [field]: 1 }), {})
+      : {};
+
+    const options = {
+      limit: parseInt(limit, 10),
+      skip: (parseInt(page, 10) - 1) * parseInt(limit, 10),
+    };
+
+    let products = await Product.find({}, projection, options);
+
+    if (!products || products.length === 0) {
       return res.status(404).send({
-        message: "No products found!"
+        message: "No products found!",
       });
     }
-    return res.status(200).send({ 
-      status: true, 
-      products 
+
+    return res.status(200).send({
+      status: true,
+      products,
     });
-  } 
-  catch (error) {
-    return res.status(500).send({ 
-      status: false, 
-      message: error.message 
+  } catch (error) {
+    return res.status(500).send({
+      status: false,
+      message: error.message,
     });
   }
 };
@@ -123,7 +135,7 @@ const updateProduct = async (req, res) => {
     res.status(200).json(updatedProduct);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'There was some issue saving your data to DB!' });
   }
 };
 

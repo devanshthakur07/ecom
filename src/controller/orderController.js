@@ -76,16 +76,18 @@ const getOrderById = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid order ID" });
     }
 
-    const order = await Order.findById(orderId).populate("items.productId");
+    const order = await Order.findById(orderId);
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
+    order = await order.populate("items.productId");
+
     res.status(200).json({ success: true, order });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    res.status(500).json({ success: false, error: "There was some error getting product IDs" });
   }
 };
 

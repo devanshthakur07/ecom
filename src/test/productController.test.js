@@ -175,65 +175,156 @@ describe('getProductById function', () => {
 
 
 
-describe('getAllProducts function', () => {
+// describe('getAllProducts function', () => {
+//   afterEach(() => {
+//     jest.clearAllMocks();
+//   });
+
+//   it('should retrieve all products successfully', async () => {
+//     const req = {};
+//     const res = {
+//       status: jest.fn().mockReturnThis(),
+//       send: jest.fn(),
+//     };
+
+//     const productsMock = [
+//       {
+//         _id: 'product1id',
+//         name: 'Product 1',
+//         price: 30.99,
+//         description: 'Description for Product 1',
+//       },
+//       {
+//         _id: 'product2id',
+//         name: 'Product 2',
+//         price: 45.99,
+//         description: 'Description for Product 2',
+//       },
+//     ];
+
+//     Product.find.mockResolvedValue(productsMock);
+
+//     await getAllProducts(req, res);
+
+//     expect(res.status).toHaveBeenCalledWith(200);
+//     expect(res.send).toHaveBeenCalledWith({
+//       status: true,
+//       products: [
+//         {
+//           _id: 'product1id',
+//           name: 'Product 1',
+//           price: 30.99,
+//           description: 'Description for Product 1',
+//         },
+//         {
+//           _id: 'product2id',
+//           name: 'Product 2',
+//           price: 45.99,
+//           description: 'Description for Product 2',
+//         },
+//       ],
+//     });
+//   });
+
+//   it('should handle no products found with a 404 status', async () => {
+//     const req = {};
+//     const res = {
+//       status: jest.fn().mockReturnThis(),
+//       send: jest.fn(),
+//     };
+
+//     Product.find.mockResolvedValue(null);
+
+//     await getAllProducts(req, res);
+
+//     expect(res.status).toHaveBeenCalledWith(404);
+//     expect(res.send).toHaveBeenCalledWith({
+//       message: 'No products found!',
+//     });
+//   });
+
+//   it('should handle product retrieval error with internal server error', async () => {
+//     const req = {};
+//     const res = {
+//       status: jest.fn().mockReturnThis(),
+//       send: jest.fn(),
+//     };
+
+//     const retrievalError = new Error('Internal server error');
+
+//     Product.find.mockRejectedValue(retrievalError);
+
+//     await getAllProducts(req, res);
+
+//     expect(res.status).toHaveBeenCalledWith(500);
+//     expect(res.send).toHaveBeenCalledWith({
+//       status: false,
+//       message: 'Internal server error',
+//     });
+//   });
+// });
+
+
+
+describe('getAllProducts', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should retrieve all products successfully', async () => {
-    const req = {};
+  it('should get all products with default limit and page', async () => {
+    const req = { query: {} };
     const res = {
       status: jest.fn().mockReturnThis(),
       send: jest.fn(),
     };
 
-    const productsMock = [
-      {
-        _id: 'product1id',
-        name: 'Product 1',
-        price: 30.99,
-        description: 'Description for Product 1',
-      },
-      {
-        _id: 'product2id',
-        name: 'Product 2',
-        price: 45.99,
-        description: 'Description for Product 2',
-      },
+    const mockProducts = [
+      { title: 'Product 1', stock: 10 },
+      { title: 'Product 2', stock: 5 },
     ];
 
-    Product.find.mockResolvedValue(productsMock);
+    Product.find.mockResolvedValue(mockProducts);
 
     await getAllProducts(req, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith({
       status: true,
-      products: [
-        {
-          _id: 'product1id',
-          name: 'Product 1',
-          price: 30.99,
-          description: 'Description for Product 1',
-        },
-        {
-          _id: 'product2id',
-          name: 'Product 2',
-          price: 45.99,
-          description: 'Description for Product 2',
-        },
-      ],
+      products: mockProducts,
     });
   });
 
-  it('should handle no products found with a 404 status', async () => {
-    const req = {};
+  it('should get products with custom limit and page', async () => {
+    const req = { query: { limit: '5', page: '2' } };
     const res = {
       status: jest.fn().mockReturnThis(),
       send: jest.fn(),
     };
 
-    Product.find.mockResolvedValue(null);
+    const mockProducts = [
+      { title: 'Product 3', stock: 8 },
+      { title: 'Product 4', stock: 3 },
+    ];
+
+    Product.find.mockResolvedValue(mockProducts);
+
+    await getAllProducts(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.send).toHaveBeenCalledWith({
+      status: true,
+      products: mockProducts,
+    });
+  });
+
+  it('should handle no products found', async () => {
+    const req = { query: {} };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+    };
+
+    Product.find.mockResolvedValue([]);
 
     await getAllProducts(req, res);
 
@@ -243,23 +334,23 @@ describe('getAllProducts function', () => {
     });
   });
 
-  it('should handle product retrieval error with internal server error', async () => {
-    const req = {};
+  it('should handle internal server error', async () => {
+    const req = { query: {} };
     const res = {
       status: jest.fn().mockReturnThis(),
       send: jest.fn(),
     };
 
-    const retrievalError = new Error('Internal server error');
+    const errorMessage = 'Internal server error';
 
-    Product.find.mockRejectedValue(retrievalError);
+    Product.find.mockRejectedValue(new Error(errorMessage));
 
     await getAllProducts(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.send).toHaveBeenCalledWith({
       status: false,
-      message: 'Internal server error',
+      message: errorMessage,
     });
   });
 });
@@ -486,7 +577,7 @@ describe('updateProduct function', () => {
     expect(existingProductMock.save).toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
-      message: 'Internal server error',
+      message: 'There was some issue saving your data to DB!',
     });
   });
 });
