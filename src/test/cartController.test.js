@@ -74,6 +74,7 @@ describe('getCartDetails', () => {
 
 jest.mock('../model/Cart', () => ({
   findOne: jest.fn(),
+  create: jest.fn()
 }));
 
 jest.mock('../model/Product', () =>  ({
@@ -111,7 +112,7 @@ describe('createCart', () => {
       return Promise.resolve(products[productId]);
     });
 
-    Cart.create.mockResolvedValue({
+    Cart.create = jest.fn().mockResolvedValue({
       userId: 'mockUserId',
       items: [{ productId: 'mockProductId1', quantity: 2, price: 10 }],
       totalPrice: 20,
