@@ -11,11 +11,13 @@ const createOrder = async (req, res) => {
     const userId = req.user.userId;
 
     // Find the user's cart
-    const userCart = await Cart.findOne({ userId }).populate("items.productId");
+    const userCart = await Cart.findOne({ userId });
 
     if (!userCart) {
       return res.status(404).json({ success: false, message: "Cart not found" });
     }
+
+    userCart = userCart.populate("items.productId");
 
     // Create an order based on the cart
     const order = new Order({
@@ -26,7 +28,7 @@ const createOrder = async (req, res) => {
       })),
       totalPrice: userCart.totalPrice,
       totalItems: userCart.totalItems,
-      address: req.body.address, // assuming address is provided in the request body
+      address: req.body.address,
     });
 
     // Save the order
@@ -63,7 +65,7 @@ const createOrder = async (req, res) => {
     res.status(201).json({ success: true, order });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    res.status(500).json({ success: false, error: "There was some error while placing your order." });
   }
 };
 
@@ -108,7 +110,7 @@ const updateOrderStatus = async (req, res) => {
     res.status(200).json({ message: 'Order status updated successfully', order });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'There was some error while updating the status of your order.' });
   }
 };
 

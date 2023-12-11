@@ -1,9 +1,15 @@
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
-const { getOrderById } = require('../controller/orderController'); 
+const { createOrder, getOrderById } = require('../controller/orderController'); 
 const Order = require('../model/Order');
+
+const Cart = require('../model/Cart');
+const Product = require('../model/Product');
+
 jest.mock('mongoose');
 jest.mock('../model/Order');
+jest.mock('../model/Cart');
+jest.mock('../model/Product');
 describe('Order Controller', () => {
   afterEach(() => {
     jest.resetAllMocks();
@@ -136,5 +142,123 @@ describe('getOrderById', () => {
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ success: false, error: errorMessage });
+  });
+});
+
+
+
+
+
+describe('createOrder', () => {
+  let req;
+  let res;
+
+  beforeEach(() => {
+    req = {
+      user: { userId: 'user123' },
+      body: { address: 'Test Address' },
+    };
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    // Reset mocks for each test
+    Cart.findOne.mockReset();
+    Product.findById.mockReset();
+    Product.prototype.save.mockReset();
+    Cart.findByIdAndDelete.mockReset();
+    Order.prototype.save.mockReset();
+  });
+
+  it('should create an order and update product stock and cart correctly', async () => {
+    const mockUserCart = {
+      userId: 'user123',
+      items: [
+        { productId: 'product1', quantity: 2 },
+        { productId: 'product2', quantity: 1 },
+      ],
+      totalPrice: 100,
+      totalItems: 3,
+    };
+
+    Cart.findOne.mockResolvedValue(mockUserCart);
+
+    Product.findById.mockImplementation((productId) => {
+      return Promise.resolve({
+        _id: productId,
+        stock: 5,
+        save: jest.fn(),
+      });
+    });
+
+    await createOrder(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, order: expect.any(Object) }));
+    expect(Order.prototype.save).toHaveBeenCalled();
+    expect(Product.findById).toHaveBeenCalledTimes(2);
+    expect(Product.prototype.save).toHaveBeenCalledTimes(2);
+    expect(Cart.findByIdAndDelete).toHaveBeenCalledWith(mockUserCart._id);
+  });
+
+  it('should handle case when user cart is not found', async () => {
+    Cart.findOne.mockResolvedValue(null);
+
+    await createOrder(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Cart not found' });
+  });
+
+  it('should handle case when product is not found', async () => {
+    const mockUserCart = {
+      userId: 'user123',
+      items: [{ productId: 'product1', quantity: 2 }],
+      totalPrice: 50,
+      totalItems: 2,
+    };
+
+    Cart.findOne.mockResolvedValue(mockUserCart);
+    Product.findById.mockResolvedValue(null);
+
+    await createOrder(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Product with ID product1 not found' });
+  });
+
+  it('should handle case when there is insufficient stock for a product', async () => {
+    const mockUserCart = {
+      userId: 'user123',
+      items: [{ productId: 'product1', quantity: 10 }],
+      totalPrice: 500,
+      totalItems: 10,
+    };
+
+    Cart.findOne.mockResolvedValue(mockUserCart);
+
+    Product.findById.mockImplementation((productId) => {
+      return Promise.resolve({
+        _id: productId,
+        stock: 5,
+        save: jest.fn(),
+      });
+    });
+
+    await createOrder(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Insufficient stock for product with ID product1' });
+  });
+
+  it('should handle internal server error', async () => {
+    Cart.findOne.mockRejectedValue(new Error('Database error'));
+
+    await createOrder(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ success: false, error: 'There was some error while placing your order.' });
   });
 });
