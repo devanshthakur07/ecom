@@ -74,22 +74,22 @@ const getOrderById = async (req, res) => {
     const orderId = req.params.id;
 
     // Check if the provided ID is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(orderId)) {
-      return res.status(400).json({ success: false, message: "Invalid order ID" });
-    }
+    // if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    //   return res.status(400).json({ success: false, message: "Invalid order ID" });
+    // }
 
-    const order = await Order.findById(orderId);
+    let order = await Order.findById(orderId);
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    order = await order.populate("items.productId");
+    await order.populate("items.productId");
 
     res.status(200).json({ success: true, order });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: "There was some error getting product IDs" });
+    res.status(500).json({ success: false, error: "There was some error getting your order" });
   }
 };
 
@@ -118,9 +118,8 @@ const updateOrderStatus = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
   try {
-    const orderId = req.params.orderId;
+    const orderId = req.params.id;
 
-    // Find the order by ID
     const order = await Order.findById(orderId);
 
     if (!order) {
