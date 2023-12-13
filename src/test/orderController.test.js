@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
-const { createOrder, getOrderById } = require('../controller/orderController'); 
+const { createOrder, getOrderById, cancelOrder } = require('../controller/orderController'); 
 const Order = require('../model/Order');
 
 const Cart = require('../model/Cart');
@@ -262,3 +262,126 @@ describe('createOrder', () => {
     expect(res.json).toHaveBeenCalledWith({ success: false, error: 'There was some error while placing your order.' });
   });
 });
+
+
+// const mockOrderId = mongoose.Types.ObjectId(); // Generate a valid ObjectId
+// const mockProductId = mongoose.Types.ObjectId(); // Generate a valid ObjectId
+
+// const mockReq = {
+//   params: {
+//     orderId: mockOrderId.toString(), // Convert ObjectId to string for testing
+//   },
+// };
+
+// const mockRes = {
+//   status: jest.fn(() => mockRes),
+//   json: jest.fn(),
+// };
+
+// // Define a mock order for testing
+// const mockOrderData = {
+//   _id: mockOrderId,
+//   userId: mongoose.Types.ObjectId(), // Generate a valid ObjectId for userId
+//   items: [
+//     {
+//       productId: mockProductId,
+//       quantity: 2,
+//     },
+//   ],
+//   totalPrice: 39.98,
+//   totalItems: 2,
+//   status: 'Pending',
+//   address: 'Mock Address',
+// };
+
+// // Define a mock product for testing
+// const mockProductData = {
+//   _id: mockProductId,
+//   title: 'Mock Product',
+//   description: 'Mock Product Description',
+//   price: 19.99,
+//   brand: 'Mock Brand',
+//   stock: 8,
+//   category: 'Mock Category',
+// };
+
+// beforeEach(() => {
+//   // Reset the mock data and mock functions before each test
+//   jest.clearAllMocks();
+//   jest.resetAllMocks();
+// });
+
+// describe('cancelOrder', () => {
+//   it('should cancel the order and update product stock', async () => {
+//     // Mock Order.findById to return the mock order
+//     Order.findById.mockResolvedValue(mockOrderData);
+
+//     // Mock Product.findById to return the mock product
+//     Product.findById.mockResolvedValue(mockProductData);
+
+//     // Mock Product.save to do nothing
+//     Product.prototype.save.mockResolvedValue();
+
+//     // Call the cancelOrder function
+//     await cancelOrder(mockReq, mockRes);
+
+//     // Assertions
+//     expect(Order.findById).toHaveBeenCalledWith(mockOrderId);
+//     expect(Product.findById).toHaveBeenCalledWith(mockProductId);
+//     expect(Product.prototype.save).toHaveBeenCalled();
+//     expect(mockRes.status).toHaveBeenCalledWith(200);
+//     expect(mockRes.json).toHaveBeenCalledWith({
+//       success: true,
+//       message: 'Order canceled successfully',
+//       order: expect.any(Object),
+//     });
+//   });
+
+//   it('should return 404 if order is not found', async () => {
+//     // Mock Order.findById to return null (order not found)
+//     Order.findById.mockResolvedValue(null);
+
+//     // Call the cancelOrder function
+//     await cancelOrder(mockReq, mockRes);
+
+//     // Assertions
+//     expect(mockRes.status).toHaveBeenCalledWith(404);
+//     expect(mockRes.json).toHaveBeenCalledWith({
+//       success: false,
+//       message: 'Order not found',
+//     });
+//   });
+
+//   it('should return 400 if order status is not "Pending"', async () => {
+//     // Mock Order.findById to return a non-cancelable order
+//     Order.findById.mockResolvedValue({
+//       ...mockOrderData,
+//       status: 'Shipped', // Change status to a non-cancelable status
+//     });
+
+//     // Call the cancelOrder function
+//     await cancelOrder(mockReq, mockRes);
+
+//     // Assertions
+//     expect(mockRes.status).toHaveBeenCalledWith(400);
+//     expect(mockRes.json).toHaveBeenCalledWith({
+//       success: false,
+//       message: 'Cannot cancel order with status Shipped',
+//     });
+//   });
+
+//   it('should handle errors during cancellation', async () => {
+//     // Mock Order.findById to throw an error
+//     Order.findById.mockRejectedValue(new Error('Test Error'));
+
+//     // Call the cancelOrder function
+//     await cancelOrder(mockReq, mockRes);
+
+//     // Assertions
+//     expect(mockRes.status).toHaveBeenCalledWith(500);
+//     expect(mockRes.json).toHaveBeenCalledWith({
+//       success: false,
+//       error: 'There was an error while canceling the order',
+//     });
+//   });
+// });

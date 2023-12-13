@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {authentication} = require("../middleware/auth");
 
-const  { createOrder, getOrderById, updateOrderStatus } = require("../controller/orderController");
+const  { createOrder, getOrderById, updateOrderStatus, cancelOrder } = require("../controller/orderController");
 
 /**
  * @swagger
@@ -195,6 +195,7 @@ const  { createOrder, getOrderById, updateOrderStatus } = require("../controller
 router.route("/").post(authentication,createOrder);
 router.route('/:id').get(authentication, getOrderById);
 router.route("/:id/status").put(authentication, updateOrderStatus);
+router.route("/:orderId").put(authentication, cancelOrder);
 // router.route("/order").get(authentication, getOrder);
 // router.route("/order/:orderId").get(getOrderById);
 // router.route("/track/:orderId").get(trackOrderById);

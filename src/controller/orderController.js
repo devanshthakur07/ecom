@@ -71,7 +71,7 @@ const createOrder = async (req, res) => {
 
 const getOrderById = async (req, res) => {
   try {
-    const orderId = req.params.orderId;
+    const orderId = req.params.id;
 
     // Check if the provided ID is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
@@ -115,4 +115,52 @@ const updateOrderStatus = async (req, res) => {
 };
 
 
-module.exports = {createOrder, getOrderById, updateOrderStatus};
+
+const cancelOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+
+    // Find the order by ID
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Check if the order can be canceled based on its current status
+    if (order.status !== 'Pending') {
+      return res.status(400).json({ success: false, message: 'Cannot cancel order with status ' + order.status });
+    }
+
+    // Restore stock for each item in the order
+    for (const item of order.items) {
+      const product = await Product.findById(item.productId);
+
+      if (!product) {
+        return res.status(404).json({
+          message: `Product with ID ${item.productId} not found`
+        });
+      }
+
+      // Increase stock
+      product.stock += item.quantity;
+
+      // Save the updated product
+      await product.save();
+    }
+
+    // Update the order status to 'Canceled'
+    order.status = 'Canceled';
+
+    // Save the updated order
+    await order.save();
+
+    res.status(200).json({ success: true, message: 'Order canceled successfully', order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'There was an error while canceling the order' });
+  }
+};
+
+
+module.exports = {createOrder, getOrderById, updateOrderStatus, cancelOrder};
